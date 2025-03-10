@@ -27,7 +27,9 @@
     function init() {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 10;
+
+        // Adjust camera distance for mobile
+        camera.position.z = window.innerWidth < 768 ? 15 : 10;
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -47,13 +49,16 @@
         img.onload = function () {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
-            canvas.width = 300;
-            canvas.height = 300;
+
+            // Adjust canvas size for different screens
+            const canvasSize = window.innerWidth < 768 ? 200 : 300;
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
-            for (let y = 0; y < canvas.height; y += 4) { // Increased particle density
+            for (let y = 0; y < canvas.height; y += 4) {
                 for (let x = 0; x < canvas.width; x += 4) { 
                     const index = (y * canvas.width + x) * 4;
                     const brightness = imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2];
@@ -84,7 +89,11 @@
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute("position", new THREE.Float32BufferAttribute(scatterPositions, 3));
 
-        const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.08 });
+        // Adjust particle size for mobile
+        const material = new THREE.PointsMaterial({ 
+            color: 0xffffff, 
+            size: window.innerWidth < 768 ? 0.15 : 0.08 
+        });
 
         const particleMesh = new THREE.Points(geometry, material);
         particles.add(particleMesh);
@@ -109,6 +118,10 @@
     window.addEventListener("resize", () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
         camera.aspect = window.innerWidth / window.innerHeight;
+
+        // Adjust camera position dynamically on resize
+        camera.position.z = window.innerWidth < 768 ? 15 : 10;
+
         camera.updateProjectionMatrix();
     });
 
