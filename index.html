@@ -27,9 +27,7 @@
     function init() {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-        // Adjust camera distance for mobile
-        camera.position.z = window.innerWidth < 768 ? 15 : 10;
+        camera.position.z = 10; // Adjusted for better visibility
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -49,28 +47,25 @@
         img.onload = function () {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
-
-            // Adjust canvas size for different screens
-            const canvasSize = window.innerWidth < 768 ? 200 : 300;
-            canvas.width = canvasSize;
-            canvas.height = canvasSize;
+            canvas.width = 250; // Reduced size for a smaller logo
+            canvas.height = 250; 
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
-            for (let y = 0; y < canvas.height; y += 4) {
+            for (let y = 0; y < canvas.height; y += 4) { // Balanced density
                 for (let x = 0; x < canvas.width; x += 4) { 
                     const index = (y * canvas.width + x) * 4;
                     const brightness = imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2];
 
                     if (brightness > 180) {  
-                        const xPos = (x / canvas.width) * 8 - 4;  
-                        const yPos = -(y / canvas.height) * 8 + 4;
-                        const zPos = Math.random() * 0.3;
+                        const xPos = (x / canvas.width) * 6 - 3;  // Reduced size
+                        const yPos = -(y / canvas.height) * 6 + 3;
+                        const zPos = Math.random() * 0.2;
 
                         positions.push(xPos, yPos, zPos);
 
-                        const scatterRange = 10;
+                        const scatterRange = 8;
                         scatterPositions.push(
                             Math.random() * scatterRange - scatterRange / 2, 
                             Math.random() * scatterRange - scatterRange / 2,
@@ -89,11 +84,7 @@
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute("position", new THREE.Float32BufferAttribute(scatterPositions, 3));
 
-        // Adjust particle size for mobile
-        const material = new THREE.PointsMaterial({ 
-            color: 0xffffff, 
-            size: window.innerWidth < 768 ? 0.15 : 0.08 
-        });
+        const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1, opacity: 1, transparent: true });
 
         const particleMesh = new THREE.Points(geometry, material);
         particles.add(particleMesh);
@@ -118,10 +109,6 @@
     window.addEventListener("resize", () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
         camera.aspect = window.innerWidth / window.innerHeight;
-
-        // Adjust camera position dynamically on resize
-        camera.position.z = window.innerWidth < 768 ? 15 : 10;
-
         camera.updateProjectionMatrix();
     });
 
