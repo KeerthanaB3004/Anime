@@ -14,12 +14,34 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
+            flex-direction: column;
             height: 100vh;
         }
         canvas { display: block; }
+
+        .logo-text {
+            position: absolute;
+            bottom: 12vh; /* Adjusted spacing */
+            font-size: 5.5em; /* Slightly smaller than before */
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            color: white;
+            opacity: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .logo-text { 
+                font-size: 4.5em; 
+                bottom: 10vh; /* Mobile spacing */
+            }
+        }
     </style>
 </head>
 <body>
+
+<div class="logo-text" id="logoText">SpawnLabs</div>
 
 <script>
     let scene, camera, renderer, particles, positions = [], scatterPositions = [];
@@ -27,7 +49,7 @@
     function init() {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 10; // Adjusted for better visibility
+        camera.position.z = window.innerWidth < 768 ? 10 : 9; // Adjusted distance for balance
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -47,21 +69,21 @@
         img.onload = function () {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
-            canvas.width = 250; // Reduced size for a smaller logo
-            canvas.height = 250; 
+            canvas.width = 250;  // Slightly larger logo
+            canvas.height = 330;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
-            for (let y = 0; y < canvas.height; y += 4) { // Balanced density
-                for (let x = 0; x < canvas.width; x += 4) { 
+            for (let y = 0; y < canvas.height; y += 5) {
+                for (let x = 0; x < canvas.width; x += 5) {
                     const index = (y * canvas.width + x) * 4;
                     const brightness = imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2];
 
                     if (brightness > 180) {  
-                        const xPos = (x / canvas.width) * 6 - 3;  // Reduced size
-                        const yPos = -(y / canvas.height) * 6 + 3;
-                        const zPos = Math.random() * 0.2;
+                        const xPos = (x / canvas.width) * 6.5 - 3.25;  
+                        const yPos = -(y / canvas.height) * 7.5 + 4.5; // Adjusted position
+                        const zPos = Math.random() * 0.3;
 
                         positions.push(xPos, yPos, zPos);
 
@@ -81,14 +103,20 @@
     }
 
     function createParticles() {
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.Float32BufferAttribute(scatterPositions, 3));
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(scatterPositions, 3));
 
-        const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1, opacity: 1, transparent: true });
+    const material = new THREE.PointsMaterial({ 
+        color: 0xeeeeff,  // Brighter white with a slight blue tone
+        size: 0.08,  // Slightly larger for better visibility
+        opacity: 0.9, // Make it more prominent
+        transparent: true
+    });
 
-        const particleMesh = new THREE.Points(geometry, material);
-        particles.add(particleMesh);
-    }
+    const particleMesh = new THREE.Points(geometry, material);
+    particles.add(particleMesh);
+}
+
 
     function revealLogo() {
         const particlePositions = particles.children[0].geometry.attributes.position.array;
@@ -97,8 +125,13 @@
             duration: 3,  
             endArray: positions, 
             onUpdate: () => particles.children[0].geometry.attributes.position.needsUpdate = true,
-            ease: "power2.out"
+            ease: "power2.out",  
+            onComplete: showText
         });
+    }
+
+    function showText() {
+        gsap.to("#logoText", { opacity: 1, duration: 1.2, ease: "power2.out" });
     }
 
     function animate() {
