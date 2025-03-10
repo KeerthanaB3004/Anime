@@ -16,15 +16,13 @@
             align-items: center; 
             flex-direction: column;
             height: 100vh;
-            position: relative;
         }
-
         canvas { display: block; }
 
         .logo-text {
             position: absolute;
-            bottom: 8vh; /* Adjusted for better spacing */
-            font-size: 4em; /* Balanced text size */
+            bottom: 8vh; /* Adjusted spacing */
+            font-size: 7em; /* Increased size */
             font-weight: bold;
             font-family: Arial, sans-serif;
             color: white;
@@ -35,8 +33,8 @@
 
         @media (max-width: 768px) {
             .logo-text { 
-                font-size: 3em; 
-                bottom: 10vh; /* Adjusted spacing for mobile */
+                font-size: 5.5em; /* Larger text for mobile */
+                bottom: 10vh;
             }
         }
     </style>
@@ -51,9 +49,7 @@
     function init() {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-        // Properly center the logo in all screen sizes
-        camera.position.z = window.innerWidth < 768 ? 10 : 7;
+        camera.position.z = window.innerWidth < 768 ? 12 : 8;
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -62,7 +58,7 @@
         particles = new THREE.Group();
         scene.add(particles);
 
-        loadLogo("logo1.png"); // Replace with your logo file
+        loadLogo("logo1.png");
 
         animate();
     }
@@ -73,20 +69,20 @@
         img.onload = function () {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
-            canvas.width = 320;  // Adjusted width
-            canvas.height = 320; // Square shape for better centering
+            canvas.width = 300;
+            canvas.height = 400;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
-            for (let y = 0; y < canvas.height; y += 5) { 
+            for (let y = 0; y < canvas.height; y += 5) {
                 for (let x = 0; x < canvas.width; x += 5) {
                     const index = (y * canvas.width + x) * 4;
                     const brightness = imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2];
 
                     if (brightness > 200) { 
-                        const xPos = (x / canvas.width) * 7 - 3.5;  
-                        const yPos = -(y / canvas.height) * 7 + 3.5; // Centering adjustment
+                        const xPos = (x / canvas.width) * 8 - 4;  
+                        const yPos = -(y / canvas.height) * 9 + 5.5;
                         const zPos = Math.random() * 0.3;
 
                         positions.push(xPos, yPos, zPos);
